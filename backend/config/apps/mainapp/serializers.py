@@ -1,6 +1,7 @@
 from rest_framework.serializers import ModelSerializer, HyperlinkedModelSerializer
 from .models import Products, Cart, MeasureUnit
 from user.models import User
+from user.serializers import UserSerializer
 
 class ProductsSerializer(ModelSerializer):
     class Meta:
@@ -9,6 +10,16 @@ class ProductsSerializer(ModelSerializer):
 
 class MeasureUnitSerializer(HyperlinkedModelSerializer):
     product = ProductsSerializer
+    
     class Meta:
         model =  MeasureUnit
-        fields = ['id']
+        fields = ['id', 'articul', 'name', 'amount', 'price', 'product']
+
+class CartSerializer(HyperlinkedModelSerializer):
+    product = ProductsSerializer
+    measure = MeasureUnitSerializer
+    user = UserSerializer
+
+    class Meta:
+        model = Cart
+        fields = ['id', 'product', 'measure', 'user', 'amount','total']
