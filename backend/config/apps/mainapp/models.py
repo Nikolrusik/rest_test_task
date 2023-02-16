@@ -15,11 +15,11 @@ class MeasureUnit(models.Model):
     amount = models.IntegerField(verbose_name='Amount product')
     price = models.FloatField(verbose_name='Price product')
 
-    product_id = models.ForeignKey(Products, on_delete=models.CASCADE)
+    product = models.ForeignKey(Products, on_delete=models.CASCADE)
 
 
 class Cart(models.Model):
-    product_id = models.ForeignKey(Products, on_delete=models.CASCADE)
-    measure_id = models.ForeignKey(MeasureUnit, on_delete=models.CASCADE)
+    product = models.ForeignKey(Products, on_delete=models.CASCADE)
+    measure = models.ForeignKey(MeasureUnit, on_delete=models.CASCADE)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     total = models.FloatField(verbose_name='Total price product')
