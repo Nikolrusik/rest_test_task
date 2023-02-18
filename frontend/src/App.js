@@ -53,15 +53,47 @@ class App extends React.Component {
   }
 
   get_token(username, password) {
-    // 
+    axios
+      .post("http://127.0.0.1:8000/api-token-auth/", {
+        username: username,
+        password: password,
+      })
+      .then((response) => {
+        console.log(response.data);
+        this.set_token(response.data['token']);
+      })
+      .catch((error) => alert(error));
   }
 
+  load_data() {
+    const headers = this.get_headers();
+    axios
+      .get("http://127.0.0.1:8000/api/products/", { headers })
+      .then((response) => {
+        this.setState({
+          products: response.data,
+        });
+      })
+      .catch((error) => {
+        console.log(error)
+        this.setState({
+          products: [],
+        })
+      });
+  }
+
+  componentDidMount() {
+    this.get_token_from_storage();
+  }
 
   render() {
     return (
       <div className="App">
         <BrowserRouter>
-          <Navbar />
+          <Navbar
+            is_authenticated={this.is_authenticated.bind(this)}
+            logout={this.logout.bind(this)}
+          />
           <Routes>
             <Route
               path="/product/:id"
@@ -74,7 +106,9 @@ class App extends React.Component {
               element={<Products />} />
             <Route
               path="/login"
-              element={<LoginForm />} />
+              element={<LoginForm
+                get_token={(username, password) => this.get_token(username, password)}
+              />} />
           </Routes>
         </BrowserRouter>
       </div>

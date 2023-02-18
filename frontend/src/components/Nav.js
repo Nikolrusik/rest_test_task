@@ -19,7 +19,8 @@ class Navbar extends React.Component {
                             <Link to="/cart" className="nav-link">Корзина</Link>
                         </li>
                         <li className="nav-item">
-                            <Link to="/login" className="nav-link">Вход</Link>
+                            {this.props?.is_authenticated() ? <a className="nav-link" onClick={() => this.props?.logout()}>Выйти</a> :
+                                <Link to="/login" className="nav-link">Вход</Link>}
                         </li>
                     </ul>
                 </div>
