@@ -5,7 +5,7 @@ class Products(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(verbose_name='Title', max_length=250)
     description = models.TextField(verbose_name='Description', null=True, blank=True)
-    image = models.ImageField(upload_to='uploads/')
+    image = models.ImageField(upload_to='uploads/', null=True, blank=True)
     
 
 class MeasureUnit(models.Model):
