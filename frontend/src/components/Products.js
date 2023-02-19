@@ -3,15 +3,16 @@ import { Link } from 'react-router-dom';
 import { useQuery, gql, } from '@apollo/client';
 
 
-const GET_PRODUCTS = gql`
-  query GetProducts {
-    allProducts {
-      id
-      title
-    }
-  }
-`;
+
 const ProductsItems = () => {
+    const GET_PRODUCTS = gql`
+        query GetProducts {
+            allProducts {
+            id
+            title
+            }
+        }`;
+
     const { loading, error, data } = useQuery(GET_PRODUCTS);
 
     if (loading) return <p>Loading...</p>;
@@ -34,15 +35,11 @@ const ProductsItems = () => {
 class Products extends React.Component {
     constructor(props) {
         super(props)
-
     }
 
     render() {
-
         return (
-
             <div className="container">
-
                 <div className="row row-cols-1 row-cols-sm-4 g-3">
                     <ProductsItems />
                 </div>
