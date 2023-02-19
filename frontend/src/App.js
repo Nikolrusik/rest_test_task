@@ -3,6 +3,7 @@ import React from 'react';
 import axios from 'axios';
 import { BrowserRouter, Route, Navigate, Routes } from 'react-router-dom';
 import Cookies from 'universal-cookie';
+import { useQuery, gql, ApolloClient, InMemoryCache, ApolloProvider, createHttpLink } from '@apollo/client';
 
 
 // Import components
@@ -13,12 +14,25 @@ import Item from './components/Item';
 import LoginForm from './components/Login';
 
 
+
+
+const link = createHttpLink({
+  uri: 'http://localhost:8000/graphql/',
+  credentials: 'same-origin',
+});
+
 class App extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
       products: [],
       token: "",
+      client: new ApolloClient({
+        link,
+        cache: new InMemoryCache(),
+        headers: this.get_headers(),
+
+      })
     }
   }
 
@@ -29,7 +43,7 @@ class App extends React.Component {
   }
 
   is_authenticated() {
-    return this.state.token != "";
+    return this.state?.token != "";
   }
 
   logout() {
@@ -47,7 +61,7 @@ class App extends React.Component {
       "Content-type": "application/json",
     };
     if (this.is_authenticated()) {
-      headers['Authorization'] = "Token" + this.state.token;
+      headers['Authorization'] = "Token" + this.state?.token;
     }
     return headers;
   }
@@ -67,20 +81,9 @@ class App extends React.Component {
 
   load_data() {
     const headers = this.get_headers();
-    axios
-      .get("http://127.0.0.1:8000/api/products/", { headers })
-      .then((response) => {
-        this.setState({
-          products: response.data,
-        });
-      })
-      .catch((error) => {
-        console.log(error)
-        this.setState({
-          products: [],
-        })
-      });
+
   }
+
 
   componentDidMount() {
     this.get_token_from_storage();
@@ -89,28 +92,30 @@ class App extends React.Component {
   render() {
     return (
       <div className="App">
-        <BrowserRouter>
-          <Navbar
-            is_authenticated={this.is_authenticated.bind(this)}
-            logout={this.logout.bind(this)}
-          />
-          <Routes>
-            <Route
-              path="/product/:id"
-              element={<Item />} />
-            <Route
-              path="/cart"
-              element={<Cart />} />
-            <Route
-              path="/"
-              element={<Products />} />
-            <Route
-              path="/login"
-              element={<LoginForm
-                get_token={(username, password) => this.get_token(username, password)}
-              />} />
-          </Routes>
-        </BrowserRouter>
+        <ApolloProvider client={this.state.client}>
+          <BrowserRouter>
+            <Navbar
+              is_authenticated={this.is_authenticated.bind(this)}
+              logout={this.logout.bind(this)}
+            />
+            <Routes>
+              <Route
+                path="/product/:id"
+                element={<Item />} />
+              <Route
+                path="/cart"
+                element={<Cart />} />
+              <Route
+                path="/"
+                element={<Products />} />
+              <Route
+                path="/login"
+                element={<LoginForm
+                  get_token={(username, password) => this.get_token(username, password)}
+                />} />
+            </Routes>
+          </BrowserRouter>
+        </ApolloProvider>
       </div>
     );
   }
