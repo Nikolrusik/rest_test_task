@@ -100,7 +100,7 @@ class App extends React.Component {
             <Routes>
               <Route
                 path="/product/:id"
-                element={<Item />} />
+                element={<Item headers={this.get_headers()} />} />
               <Route
                 path="/cart"
                 element={<Cart />} />

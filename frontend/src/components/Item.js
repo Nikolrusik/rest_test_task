@@ -1,21 +1,23 @@
 import React from 'react';
 import { useState } from 'react';
-import { useParams } from 'react-router';
-import { useQuery, gql } from '@apollo/client';
+import { redirect, useParams } from 'react-router';
+import { useQuery, gql, useMutation } from '@apollo/client';
+import axios from 'axios';
 
-const Item = () => {
+const Item = ({ headers }) => {
     let { id } = useParams();
     const GET_PRODUCT_BY_ID = gql`
     query allProducts {
         productById(id:${id}) {
-         title
-                 description
-           measureunitSet {
-             id
-           articul
-           name
-           amount
-           price
+            id
+            title
+            description
+            measureunitSet {
+            id
+            articul
+            name
+            amount
+            price
            }
        }
        }`
@@ -36,7 +38,73 @@ const Item = () => {
             setAmount((value) => value == 1 ? value : value - 1)
         }
 
+        const handleSubmit = () => {
+            if (response != '') {
+                let total = 0;
+                let i = 0;
+                let measure_end = []
+                let a = [];
+                let b = 0;
+                let ADD_CART = `
+                mutation addCArt {
+                    superCart(input: {
+                        id: 1
+                        product: "${response.id}",
+                        measure: "${measure.id}",
+                        user: "1",
+                        amount: ${amount},
+                        total: ${total}
+                    }) {
+                        id
+                    }
+                    }`
+                response.measureunitSet.map((item) => {
+                    if (item.id != measure.id) {
+                        if (amount > item.amount) {
+                            a.push(parseInt(amount / item.amount))
+                            if ((amount - item.amount) != 0) {
+                                measure_end.push(measure)
+                                a.push(amount - item.amount)
+                                if (measure_end.length > 1) {
+                                    measure_end.pop()
+                                    measure_end.push(item)
+                                } else {
+                                    measure_end.push(item)
+                                }
 
+                            }
+
+                        }
+                    }
+                })
+                measure_end.map((item) => {
+                    total = a[i] * item.price
+                    ADD_CART = `mutation addCArt {
+                                superCart(input: {
+                                    product: "${response.id}",
+                                    measure: "${item.id}",
+                                    user: "1",
+                                    amount: ${a[i]},
+                                    total: ${total}
+                                }) {
+                                    id
+                                }
+                                }`
+                    axios
+                        .post('http://127.0.0.1:8000/graphql/', {
+                            query: ADD_CART
+                        },
+                            {
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                }
+                            }
+                        )
+                    i++;
+                })
+            }
+            alert("Товар добавлен в корзину")
+        }
 
         return (
             <div className='container' onLoad={() => setMeasure(response.measureunitSet[0])}>
@@ -56,7 +124,7 @@ const Item = () => {
                     <input type="text" min="1" className="form-control" placeholder="Amount" value={amount} />
                     <div className='btn btn-danger' onClick={() => minusAmount()}>-</div>
                 </div>
-                <button type="submit" className='btn btn-primary'>Добавить в корзину</button>
+                <button type="submit" className='btn btn-primary' onClick={() => handleSubmit()}>Добавить в корзину</button>
 
             </div >
         )
