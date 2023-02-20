@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
-import { redirect, useParams } from 'react-router';
-import { useQuery, gql, useMutation } from '@apollo/client';
+import { useParams } from 'react-router';
+import { useQuery, gql } from '@apollo/client';
 import axios from 'axios';
 
 const Item = ({ headers }) => {
@@ -48,7 +48,6 @@ const Item = ({ headers }) => {
                 let ADD_CART = `
                 mutation addCArt {
                     superCart(input: {
-                        id: 1
                         product: "${response.id}",
                         measure: "${measure.id}",
                         user: "1",
