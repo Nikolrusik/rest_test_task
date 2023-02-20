@@ -2,7 +2,7 @@
 ## Step 1
 Для начала создайте папку для проекта и выполните команду:
 ```
-git clone https://github.com/Nikolrusik/django_stripe_test.git /yourfolder
+git clone https://github.com/Nikolrusik/rest_test_task.git /yourfolder
 ```
 
 ## Step 2
