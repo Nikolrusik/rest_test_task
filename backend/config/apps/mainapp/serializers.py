@@ -1,4 +1,4 @@
-from rest_framework.serializers import ModelSerializer, HyperlinkedModelSerializer
+from rest_framework.serializers import ModelSerializer, HyperlinkedModelSerializer, SlugRelatedField
 from .models import Products, Cart, MeasureUnit
 from user.models import User
 from user.serializers import UserSerializer
@@ -20,6 +20,11 @@ class CartSerializer(HyperlinkedModelSerializer):
     measure = MeasureUnitSerializer
     user = UserSerializer
 
+    class Meta:
+        model = Cart
+        fields = ['id', 'product', 'measure', 'user', 'amount','total']
+
+class CartPostSerializer(ModelSerializer):
     class Meta:
         model = Cart
         fields = ['id', 'product', 'measure', 'user', 'amount','total']

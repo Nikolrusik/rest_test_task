@@ -12,6 +12,7 @@ import Products from './components/Products';
 import Navbar from './components/Nav';
 import Item from './components/Item';
 import LoginForm from './components/Login';
+import OrderForm from './components/Order';
 
 
 
@@ -100,10 +101,10 @@ class App extends React.Component {
             <Routes>
               <Route
                 path="/product/:id"
-                element={<Item headers={this.get_headers()} />} />
+                element={<Item client={this.state.client} headers={this.get_headers()} />} />
               <Route
                 path="/cart"
-                element={<Cart />} />
+                element={<Cart client={this.state.client} />} />
               <Route
                 path="/"
                 element={<Products />} />
@@ -112,6 +113,11 @@ class App extends React.Component {
                 element={<LoginForm
                   get_token={(username, password) => this.get_token(username, password)}
                 />} />
+              <Route
+                path="/create_order"
+                element={
+                  <OrderForm />
+                } />
             </Routes>
           </BrowserRouter>
         </ApolloProvider>

@@ -17,7 +17,7 @@ const ProductsItems = () => {
 
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Error : {error.message}</p>;
-    console.log(data.allProducts)
+
 
     return data.allProducts.map(({ id, title, image }) =>
     (
@@ -41,7 +41,7 @@ class Products extends React.Component {
         return (
             <div className="container">
                 <div className="row row-cols-1 row-cols-sm-4 g-3">
-                    <ProductsItems />
+                    <ProductsItems client={this.props.client} />
                 </div>
             </div>
         )

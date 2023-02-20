@@ -4,7 +4,7 @@ import { useParams } from 'react-router';
 import { useQuery, gql } from '@apollo/client';
 import axios from 'axios';
 
-const Item = ({ headers }) => {
+const Item = (props, { headers }) => {
     let { id } = useParams();
     const GET_PRODUCT_BY_ID = gql`
     query allProducts {
@@ -40,11 +40,12 @@ const Item = ({ headers }) => {
 
         const handleSubmit = () => {
             if (response != '') {
-                let total = 0;
+                let total = amount * measure.price;
+                console.log(total)
                 let i = 0;
                 let measure_end = []
+                measure_end.push(measure)
                 let a = [];
-                let b = 0;
                 let ADD_CART = `
                 mutation addCArt {
                     superCart(input: {
@@ -58,15 +59,16 @@ const Item = ({ headers }) => {
                     }
                     }`
                 response.measureunitSet.map((item) => {
-                    if (item.id != measure.id) {
+                    if (item.id != measure.id && item.amount > measure.amount) {
                         if (amount > item.amount) {
                             a.push(parseInt(amount / item.amount))
-                            if ((amount - item.amount) != 0) {
+                            if ((amount - item.amount) > 0) {
                                 measure_end.push(measure)
                                 a.push(amount - item.amount)
                                 if (measure_end.length > 1) {
                                     measure_end.pop()
                                     measure_end.push(item)
+                                    console.log(item)
                                 } else {
                                     measure_end.push(item)
                                 }
@@ -76,19 +78,33 @@ const Item = ({ headers }) => {
                         }
                     }
                 })
-                measure_end.map((item) => {
-                    total = a[i] * item.price
-                    ADD_CART = `mutation addCArt {
-                                superCart(input: {
-                                    product: "${response.id}",
-                                    measure: "${item.id}",
-                                    user: "1",
-                                    amount: ${a[i]},
-                                    total: ${total}
-                                }) {
-                                    id
+                if (measure_end.length > 1) {
+                    measure_end.map((item) => {
+                        total = a[i] * item.price
+                        ADD_CART = `mutation addCArt {
+                                    superCart(input: {
+                                        product: "${response.id}",
+                                        measure: "${item.id}",
+                                        user: "1",
+                                        amount: ${a[i]},
+                                        total: ${total}
+                                    }) {
+                                        id
+                                    }
+                                    }`
+                        axios
+                            .post('http://127.0.0.1:8000/graphql/', {
+                                query: ADD_CART
+                            },
+                                {
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    }
                                 }
-                                }`
+                            )
+                        i++;
+                    })
+                } else {
                     axios
                         .post('http://127.0.0.1:8000/graphql/', {
                             query: ADD_CART
@@ -99,9 +115,11 @@ const Item = ({ headers }) => {
                                 }
                             }
                         )
-                    i++;
-                })
+                }
             }
+            props?.client.refetchQueries({
+                include: "active",
+            });
             alert("Товар добавлен в корзину")
         }
 

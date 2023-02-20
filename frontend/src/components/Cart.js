@@ -1,9 +1,11 @@
 import React from "react";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, gql, useMutation } from '@apollo/client';
 import axios from 'axios';
+import Cookies from "universal-cookie";
+import { Link } from "react-router-dom";
 
-const CartItem = ({ item, amount, setAmount, plusAmount, minusAmount }) => {
+const CartItem = ({ item, amount, setAmount, plusAmount, minusAmount, delCart }) => {
     let copy = amount
     copy.set(item.id, parseInt(`${item.amount}`))
 
@@ -30,13 +32,20 @@ const CartItem = ({ item, amount, setAmount, plusAmount, minusAmount }) => {
                 <p className="text lead">₽</p>
             </div>
             <div className='col-1'>
-                <button type='button' className='btn btn-danger'>Удалить</button>
+                <button type='button' onClick={() => { delCart(item.id) }} className='btn btn-danger'>Удалить</button>
             </div>
         </div >
     )
 }
-const Cart = () => {
+const Cart = (props) => {
     const [amount, setAmount] = useState(new Map([]))
+    useEffect(() => {
+        return () => {
+            props.client.refetchQueries({
+                include: "active",
+            });
+        }
+    }, [])
     const GET_CART = gql`query GetCart {
         allCart {
           id
@@ -59,17 +68,28 @@ const Cart = () => {
     let ADD_CART = 0;
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Error : {error.message}</p>;
-    const plusAmount = (e, copy, item) => {
-        let elem = document.getElementById(`am-${e.target.id}`)
+    let totaled = 0
+    let cookie = new Cookies();
+    if (!loading) {
+        for (let i = 0; i < data.allCart.length; i++) {
+            totaled = totaled + data.allCart[i].total
+        }
+    }
+    cookie.set('all_total', totaled)
+    cookie.set('positions', data.allCart.length)
+    function plusAmount(e, copy, item) {
+        let elem = document.getElementById(`am-${e.target.id}`);
 
 
         if (copy.has(e.target.id)) {
-            copy.set(e.target.id, copy.get(e.target.id) + 1)
+            copy.set(e.target.id, copy.get(e.target.id) + 1);
         }
-        setAmount(copy)
-        let price_elem = document.getElementById(`price-${e.target.id}`)
+        setAmount(copy);
+        let price_elem = document.getElementById(`price-${e.target.id}`);
         price_elem.innerText = `${(elem.value * item.measure.price) + item.measure.price}`;
         elem.value++;
+
+
         ADD_CART = `mutation addCArt {
             superCart(input: {
                 id: ${item.id},
@@ -81,7 +101,7 @@ const Cart = () => {
             }) {
                 id
             }
-            }`
+            }`;
         axios
             .post('http://127.0.0.1:8000/graphql/', {
                 query: ADD_CART
@@ -91,8 +111,11 @@ const Cart = () => {
                         'Content-Type': 'application/json'
                     }
                 }
-            )
+            );
 
+        props.client.refetchQueries({
+            include: "active",
+        });
     }
     const minusAmount = (e, copy, item) => {
         let elem = document.getElementById(`am-${e.target.id}`)
@@ -131,10 +154,33 @@ const Cart = () => {
 
     }
 
-
+    const delCart = (id) => {
+        let DEL_CART = `
+        mutation delCart {
+            deleteCart(id:${id}) {
+            ok
+          }
+        }
+        `
+        axios
+            .post('http://127.0.0.1:8000/graphql/', {
+                query: DEL_CART
+            },
+                {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            )
+        props.client.refetchQueries({
+            include: "active",
+        });
+    }
     return (
         <div className='container'>
+
             <div className="cart">
+
                 <div className='cart-item row'>
                     <div className='col-1'>
                         <p className='lead'>IMG</p>
@@ -155,16 +201,19 @@ const Cart = () => {
                         <p className='lead'>Control</p>
                     </div>
                 </div>
-                {data.allCart.map((item) => <CartItem item={item} amount={amount} setAmount={setAmount} plusAmount={plusAmount} minusAmount={minusAmount} />)}
+                {data.allCart.map((item) =>
+                    < CartItem item={item} delCart={delCart.bind()} amount={amount} setAmount={setAmount} plusAmount={plusAmount} minusAmount={minusAmount} />
+                )}
                 <div className='cart-item row'>
                     <div className='col-5'>
                         Всего позиций: {data.allCart.length}
                     </div>
                     <div className='col-5'>
-                        Общая сумма: 100
+                        Общая сумма: {cookie.get('all_total')}
                     </div>
                     <div className='col-2'>
-                        <button type="button" className='btn btn-success'>Оформить заказ</button>
+                        <Link to="/create_order" className="btn btn-success">Оформить заказ</Link>
+                        {/* <button type="button" className='btn btn-success'>Оформить заказ</button> */}
                     </div>
                 </div>
 

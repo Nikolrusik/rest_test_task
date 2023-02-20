@@ -1,6 +1,6 @@
 from rest_framework.viewsets import ModelViewSet
 from .models import Cart, MeasureUnit, Products
-from .serializers import CartSerializer, MeasureUnitSerializer, ProductsSerializer
+from .serializers import CartSerializer, MeasureUnitSerializer, ProductsSerializer, CartPostSerializer
 
 class ProductsViewSet(ModelViewSet):
     queryset = Products.objects.all()
@@ -12,4 +12,4 @@ class MeasureUnitViewSet(ModelViewSet):
 
 class CartViewSet(ModelViewSet):
     queryset = Cart.objects.all()
-    serializer_class = CartSerializer
+    serializer_class = CartPostSerializer
