@@ -1,7 +1,7 @@
 import graphene
 from graphene_django import DjangoObjectType
 from graphene_django.rest_framework.mutation import SerializerMutation
-from mainapp.serializers import CartPostSerializer, CartSerializer
+from mainapp.serializers import CartPostSerializer
 from mainapp.models import MeasureUnit, Cart, Products
 from user.models import User 
 

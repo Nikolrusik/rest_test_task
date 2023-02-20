@@ -1,7 +1,4 @@
 import React from "react";
-import { useState, useEffect } from 'react';
-import { useQuery, gql, useMutation } from '@apollo/client';
-import axios from 'axios';
 import Cookies from "universal-cookie";
 
 

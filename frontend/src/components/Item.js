@@ -41,7 +41,6 @@ const Item = (props, { headers }) => {
         const handleSubmit = () => {
             if (response != '') {
                 let total = amount * measure.price;
-                console.log(total)
                 let i = 0;
                 let measure_end = []
                 measure_end.push(measure)
@@ -68,7 +67,6 @@ const Item = (props, { headers }) => {
                                 if (measure_end.length > 1) {
                                     measure_end.pop()
                                     measure_end.push(item)
-                                    console.log(item)
                                 } else {
                                     measure_end.push(item)
                                 }
